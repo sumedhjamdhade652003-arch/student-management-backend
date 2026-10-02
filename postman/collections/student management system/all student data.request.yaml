@@ -1,5 +1,4 @@
 $kind: http-request
-name: New Request
 url: http://127.0.0.1:8000/students
 method: GET
-order: 1935800750790181
+order: 6000
