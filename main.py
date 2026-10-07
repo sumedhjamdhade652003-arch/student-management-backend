@@ -15,9 +15,9 @@ connection= psycopg2.connect(
 
 cursor=connection.cursor()
 class Student(BaseModel):
-    id:int
-    name:str
-    course:str
+    id:int = None
+    name:str = None
+    course:str = None
 # get all student 
 @app.get('/students')
 def get_all_students():
@@ -45,12 +45,10 @@ def get_single_student(id:int):
             'course':row[2]
         }
     except:
-        raise httpException(status_code=404,detail='Invalid Student Id')
+        raise HTTPException(status_code=404,detail='Invalid Student Id')
 
 # create student record
 @app.post('/students')
-
-
 def create_student_record(student: Student):
     try:
         cursor.execute('insert into students (id,name,course) values (%s,%s,%s)',(student.id,student.name,student.course))
@@ -59,3 +57,35 @@ def create_student_record(student: Student):
     except psycopg2.IntegrityError:
         connection.rollback()
         raise HTTPException(status_code=404,detail='Student ID already exists')
+    
+# update student record
+@app.put('/students/{id}')
+def update_student_record(id: int, student: Student):
+    cursor.execute('update students set id=%s,name=%s,course=%s where id=%s',(student.id,student.name,student.course,id))
+    if(cursor.rowcount==0):
+        raise HTTPException(status_code=404,detail='Invalid Student Id')
+    connection.commit()
+    raise HTTPException(status_code=200,detail='Student Record Updated Successfully')
+
+#update partial record
+@app.patch('/students/{id}')
+def update_partial_student_record(id: int, student: Student):
+    if(student.name!=None):
+        cursor.execute('update students set name=%s where id=%s',(student.name,id))
+    if(student.id!=None):
+        cursor.execute('update students set id=%s where id=%s',(student.id,id))
+    if(student.course!=None):
+        cursor.execute('update students set course=%s where id=%s',(student.course,id))
+    if(cursor.rowcount==0):
+        raise HTTPException(status_code=404,detail='Invalid Student Id')
+    connection.commit()
+    raise HTTPException(status_code=200,detail='partial update Successfully')
+
+#delete student record
+@app.delete('/students/{id}')
+def delete_student_record(id:int):
+    cursor.execute('delete from students where id=%s',(id,))
+    if(cursor.rowcount==0):
+        raise HTTPException(status_code=404,detail='Invalid Student Id')
+    connection.commit()
+    raise HTTPException(status_code=200,detail='Student Record Deleted Successfully')

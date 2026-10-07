@@ -1,0 +1,8 @@
+$kind: http-request
+description: ""
+url: http://127.0.0.1:8000/students/101
+method: PATCH
+body:
+  type: json
+  content: "{\r\n    \"name\":\"pawan\"\r\n}"
+order: 2568924125601858
