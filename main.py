@@ -1,4 +1,5 @@
 import psycopg2
+from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
 
@@ -8,14 +9,23 @@ load_dotenv()
 import os
 
 app=FastAPI()
-connection= psycopg2.connect(
-    host=os.getenv('DB_HOST'),
-    port=os.getenv('DB_PORT'),
-    database=os.getenv('DB_DATABASE'),
-    user=os.getenv('DB_USER'),
-    password=os.getenv('DB_PASSWORD')
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allows all request headers
 )
-
+# connection= psycopg2.connect(
+#     host=os.getenv('DB_HOST'),
+#     port=os.getenv('DB_PORT'),
+#     database=os.getenv('DB_DATABASE'),
+#     user=os.getenv('DB_USER'),
+#     password=os.getenv('DB_PASSWORD')
+# )
+connection= psycopg2.connect('postgresql://neondb_owner:npg_Xltbs42zfrjP@ep-green-pond-b5dc70lw-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
+   
+   
 cursor=connection.cursor()
 class Student(BaseModel):
     id:int = None
